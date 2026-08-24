@@ -14,6 +14,6 @@ menu:
 
 ## 关于本站
 
-本站使用 [Hugo](https://gohugo.io/) 构建，主题为 [Stack](https://github.com/CaiJimmy/hugo-theme-stack)，托管在 Cloudflare Pages 上。
+本站使用 [Hugo](https://gohugo.io/)构建
 
 每次向 GitHub 仓库推送新文章，网站都会自动重新构建和部署。

@@ -1,20 +1,16 @@
 ---
-title: 你好，世界
+title: Hello,World!
 date: 2026-08-24
-description: 我的第一篇博客文章。
+description: 我的第一篇博客文章
 tags:
     - 随笔
 categories:
     - 随笔
 ---
 
-欢迎来到我的博客！这是第一篇测试文章，用来验证网站已经正常工作。
-
-<!--more-->
-
 ## 这是什么？
 
-这是我用 Hugo + Stack 主题搭建的个人博客，托管在 Cloudflare Pages 上。
+这是我用 Hugo + Stack 主题搭建的个人博客，托管在 Netify上
 
 ## 如何发布新文章？
 
@@ -25,4 +21,4 @@ categories:
 hugo new post/my-new-post/index.md
 ```
 
-文章写好并推送到 GitHub 后，Cloudflare Pages 会自动重新构建并部署，整个过程不需要任何手动操作。
+文章写后，推送到 GitHub
