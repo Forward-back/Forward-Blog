@@ -1,0 +1,13 @@
+# Hugo 构建产物
+public/
+resources/
+
+# Hugo 锁文件
+.hugo_build.lock
+
+# 本地 Hugo 可执行文件（云端构建不需要）
+hugo.exe
+
+# 系统文件
+.DS_Store
+Thumbs.db
