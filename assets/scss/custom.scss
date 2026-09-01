@@ -1,0 +1,992 @@
+// =============================================================================
+// Forward Blog — Warm Paper / Humanistic · Natural redesign
+// Override layer for hugo-theme-stack. Loaded last by assets/scss/style.scss.
+// Dark mode disabled (hugo.toml: colorScheme.toggle=false, default=light).
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// 0. Tokens — palette + typography + soft shadows
+// -----------------------------------------------------------------------------
+
+:root {
+    // Warm paper, ink, moss, tea — no tech, no neon
+    --body-background: #f5efe0;        // 米色纸
+    --body-text-color: #2a2a2a;        // 墨
+
+    --accent-color: #6b8e5a;           // 苔绿
+    --accent-color-darker: #557046;
+    --accent-color-text: #fbf7ec;
+    --accent-color-secondary: #8a6d4b; // 茶褐
+    --accent-color-tertiary: #c97b5a;  // 赭石 (used sparingly)
+    --accent-color-quaternary: #4a6b7a;// 石青 (cooler accent for variety)
+
+    --card-background: #fbf7ec;        // 浅纸
+    --card-background-selected: #f0e8d4;
+    --card-text-color-main: #1a1a1a;
+    --card-text-color-secondary: #6a5d4a;
+    --card-text-color-tertiary: #8a7d6a;
+    --card-separator-color: rgba(138, 109, 74, 0.20);
+    --card-border-radius: 12px;
+
+    --tag-border-radius: 999px;        // pill
+
+    --blockquote-background-color: rgba(107, 142, 90, 0.06);
+    --blockquote-border-size: 3px;
+
+    --heading-border-size: 2px;
+
+    --link-background-color: 107, 142, 90;
+    --link-background-opacity: 0.12;
+    --link-background-opacity-hover: 0.22;
+
+    --code-background-color: rgba(138, 109, 74, 0.10);
+    --code-text-color: #6a4a2a;
+
+    --table-border-color: rgba(138, 109, 74, 0.25);
+    --tr-even-background-color: rgba(138, 109, 74, 0.05);
+
+    --kbd-border-color: var(--accent-color-secondary);
+
+    --shadow-l1: 0 1px 2px rgba(138, 109, 74, 0.06),
+                 0 4px 14px rgba(138, 109, 74, 0.08),
+                 0 0 0 1px rgba(138, 109, 74, 0.06);
+    --shadow-l2: 0 2px 6px rgba(138, 109, 74, 0.10),
+                 0 12px 32px rgba(138, 109, 74, 0.14),
+                 0 0 0 1px rgba(138, 109, 74, 0.10);
+    --shadow-soft: 0 8px 24px rgba(138, 109, 74, 0.18), 0 0 0 1px rgba(138, 109, 74, 0.12);
+
+    // Typography — diverse but harmonious (serif body + brush accent + sans UI)
+    --sys-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                       "Microsoft YaHei", "Helvetica Neue";
+    --base-font-family: "EB Garamond", "Noto Serif SC", var(--sys-font-family), serif;
+    --code-font-family: "Space Mono", "Menlo", "Monaco", "Consolas", monospace;
+    --font-display: "Playfair Display", "Noto Serif SC", var(--sys-font-family), serif;
+    --font-brush: "Ma Shan Zheng", "Noto Serif SC", var(--sys-font-family), serif;
+    --font-ui: "Inter", "Noto Sans SC", var(--sys-font-family), sans-serif;
+    --article-font-family: var(--base-font-family);
+    --article-font-size: 1.7rem;
+    --article-line-height: 1.9;
+
+    --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+    // paper grain SVG noise — shared across all seasons (subtle, season-agnostic)
+    --paper-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.4  0 0 0 0 0.4  0 0 0 0 0.4  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.45'/></svg>");
+}
+
+// -----------------------------------------------------------------------------
+// 1. Base — paper background with grain, selection, scrollbar, focus
+// -----------------------------------------------------------------------------
+
+body {
+    font-family: var(--base-font-family);
+    background-color: var(--body-background);
+    color: var(--body-text-color);
+    // soft warm vignette + paper grain
+    background-image:
+        radial-gradient(ellipse at 20% 0%, rgba(201, 123, 90, 0.06), transparent 55%),
+        radial-gradient(ellipse at 100% 100%, rgba(107, 142, 90, 0.07), transparent 55%),
+        var(--paper-grain);
+    background-attachment: fixed, fixed, fixed;
+    background-size: auto, auto, 160px 160px;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+::selection {
+    background: rgba(107, 142, 90, 0.28);
+    color: #1a1a1a;
+    text-shadow: none;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: rgba(138, 109, 74, 0.35);
+    border: 2px solid var(--body-background);
+    border-radius: 999px;
+    &:hover { background: rgba(138, 109, 74, 0.55); }
+}
+
+:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+
+// -----------------------------------------------------------------------------
+// 2. Ambient layer — drifting leaves (auto-running, no user trigger)
+// -----------------------------------------------------------------------------
+
+.ambient-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.leaf {
+    position: absolute;
+    top: -40px;
+    width: 14px;
+    height: 22px;
+    border-radius: 0 100% 0 100%;
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-color-secondary));
+    opacity: 0.28;
+    filter: blur(0.3px);
+    animation: drift var(--dur, 22s) var(--ease-soft) infinite;
+    animation-delay: var(--delay, 0s);
+    left: var(--x, 10%);
+    transform-origin: center;
+}
+
+.leaf:nth-child(1) { --x: 8%;  --dur: 24s; --delay: 0s;   background: linear-gradient(135deg, #d97a3a, #b8651a); }
+.leaf:nth-child(2) { --x: 22%; --dur: 28s; --delay: -4s;  background: linear-gradient(135deg, #c94a2a, #8a3a1a); }
+.leaf:nth-child(3) { --x: 38%; --dur: 20s; --delay: -9s;  background: linear-gradient(135deg, #b8651a, #6a4220); }
+.leaf:nth-child(4) { --x: 52%; --dur: 30s; --delay: -2s;  background: linear-gradient(135deg, #d97a3a, #c94a2a); }
+.leaf:nth-child(5) { --x: 68%; --dur: 26s; --delay: -12s; background: linear-gradient(135deg, #c97b3a, #8a4a1a); }
+.leaf:nth-child(6) { --x: 82%; --dur: 22s; --delay: -7s;  background: linear-gradient(135deg, #b8651a, #d97a3a); }
+.leaf:nth-child(7) { --x: 92%; --dur: 32s; --delay: -15s; background: linear-gradient(135deg, #8a4a1a, #c97b3a); }
+.leaf:nth-child(8) { --x: 48%; --dur: 18s; --delay: -18s; background: linear-gradient(135deg, #c94a2a, #b8651a); }
+
+@keyframes drift {
+    0%   { transform: translate3d(0, -10vh, 0) rotate(0deg);   opacity: 0; }
+    8%   { opacity: 0.32; }
+    92%  { opacity: 0.28; }
+    100% { transform: translate3d(var(--drift, 60px), 110vh, 0) rotate(540deg); opacity: 0; }
+}
+
+// keep content above ambient
+.main-container,
+.site-footer,
+.left-sidebar,
+.right-sidebar { position: relative; z-index: 1; }
+
+// -----------------------------------------------------------------------------
+// 3. Reading progress — thin moss bar at top
+// -----------------------------------------------------------------------------
+
+.reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-color), var(--accent-color-tertiary));
+    transform: scaleX(0);
+    transform-origin: left center;
+    z-index: 100;
+    pointer-events: none;
+    transition: transform 0.08s linear;
+}
+
+// -----------------------------------------------------------------------------
+// 4. Cards — soft shadow, rounded, gentle hover lift
+// -----------------------------------------------------------------------------
+
+.article,
+.widget,
+.article-list > article {
+    position: relative;
+    background: var(--card-background);
+    border: 1px solid var(--card-separator-color);
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--shadow-l1);
+    transition: transform 0.4s var(--ease-soft),
+                box-shadow 0.4s var(--ease-soft),
+                border-color 0.3s var(--ease-soft);
+}
+
+.article-list > article:hover,
+.article:hover,
+.widget:hover {
+    transform: translateY(-3px);
+    border-color: rgba(107, 142, 90, 0.45);
+    box-shadow: var(--shadow-l2);
+}
+
+// -----------------------------------------------------------------------------
+// 5. Section titles — Playfair, ink-reveal, decorative underline grows in
+// -----------------------------------------------------------------------------
+
+.section-title,
+.widget-title.section-title {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-style: italic;
+    letter-spacing: 0.01em;
+    color: var(--card-text-color-main);
+    position: relative;
+    padding-bottom: 0.4em;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+    &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 2px;
+        width: 64%;
+        background: linear-gradient(90deg, var(--accent-color), transparent);
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 6. Sidebar — literary name, italic subtitle, soft avatar ring
+// -----------------------------------------------------------------------------
+
+.site-name {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: var(--card-text-color-main);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+    a { color: inherit; text-decoration: none; }
+}
+
+.site-description,
+.site-subtitle {
+    font-family: var(--base-font-family);
+    font-style: italic;
+    color: var(--card-text-color-secondary);
+    font-weight: 400;
+}
+
+.site-avatar {
+    box-shadow:
+        0 0 0 2px var(--card-background),
+        0 0 0 3px var(--accent-color),
+        0 0 0 7px var(--card-background),
+        0 0 0 8px rgba(138, 109, 74, 0.35),
+        0 6px 18px rgba(138, 109, 74, 0.20);
+    animation: breathe 7s ease-in-out infinite;
+}
+@keyframes breathe {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.025); }
+}
+
+.emoji { font-family: var(--font-brush); }
+
+.menu-social a,
+.menu-social .social-link {
+    color: var(--accent-color-secondary);
+    transition: color 0.25s var(--ease-soft), transform 0.25s var(--ease-soft);
+    &:hover {
+        color: var(--accent-color);
+        transform: translateY(-2px);
+    }
+}
+
+.menu a {
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--card-text-color-main);
+    text-decoration: none;
+    background-image: linear-gradient(var(--accent-color), var(--accent-color));
+    background-repeat: no-repeat;
+    background-size: 0% 1.5px;
+    background-position: left 100%;
+    transition: background-size 0.3s var(--ease-soft), color 0.2s;
+    &:hover {
+        color: var(--accent-color);
+        background-size: 100% 1.5px;
+    }
+}
+
+.sidebar button,
+.sidebar [data-toggle] {
+    border: 1px solid var(--card-separator-color);
+    background: var(--card-background);
+    color: var(--accent-color-secondary);
+    border-radius: 999px;
+    transition: all 0.25s var(--ease-soft);
+    &:hover {
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+        transform: rotate(8deg);
+    }
+}
+
+.hamburger-inner,
+.hamburger-inner::before,
+.hamburger-inner::after {
+    background-color: var(--accent-color-secondary) !important;
+}
+
+// -----------------------------------------------------------------------------
+// 8. Article — title, headings, links, blockquote, code, tables, images
+// -----------------------------------------------------------------------------
+
+.article-title {
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.005em;
+    color: var(--card-text-color-main);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.article-subtitle,
+.article-description {
+    font-family: var(--base-font-family);
+    font-style: italic;
+    color: var(--card-text-color-secondary);
+    font-size: 1.05em;
+}
+
+.article-meta,
+.article-details,
+.inline-meta {
+    font-family: var(--font-ui);
+    font-size: 0.82rem;
+    color: var(--card-text-color-tertiary);
+    letter-spacing: 0.02em;
+}
+
+.article-content {
+    font-size: var(--article-font-size);
+    line-height: var(--article-line-height);
+    color: #1f1f1f;
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: var(--font-display);
+        font-weight: 600;
+        color: var(--card-text-color-main);
+        line-height: 1.3;
+        letter-spacing: 0.005em;
+        margin-top: 1.6em;
+        &::before {
+            content: "·";
+            color: var(--accent-color);
+            margin-right: 0.3em;
+            font-weight: 700;
+        }
+    }
+    h2, h3 {
+        border-bottom: 1px dashed var(--card-separator-color);
+        padding-bottom: 0.2em;
+    }
+
+    a {
+        color: var(--accent-color-darker);
+        font-weight: 500;
+        text-decoration: none;
+        background-image: linear-gradient(
+            100deg,
+            rgba(107, 142, 90, var(--link-background-opacity)),
+            rgba(107, 142, 90, var(--link-background-opacity))
+        );
+        background-repeat: no-repeat;
+        background-size: 100% 30%;
+        background-position: 0 92%;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+        transition: color 0.2s var(--ease-soft), background-size 0.25s var(--ease-soft);
+        &:hover {
+            color: var(--accent-color);
+            background-size: 100% 100%;
+        }
+    }
+
+    blockquote {
+        border-left: var(--blockquote-border-size) solid var(--accent-color);
+        background: var(--blockquote-background-color);
+        border-radius: 0 8px 8px 0;
+        font-family: var(--font-brush);
+        font-size: 1.1em;
+        line-height: 1.7;
+        color: var(--card-text-color-main);
+        padding: 0.8em 1.2em;
+        margin: 1.4em 0;
+        box-shadow: 0 4px 14px rgba(107, 142, 90, 0.08);
+        p { margin: 0.5em 0; }
+    }
+
+    code {
+        font-family: var(--code-font-family);
+        background: var(--code-background-color);
+        color: var(--code-text-color);
+        border: 1px solid rgba(138, 109, 74, 0.18);
+        border-radius: 4px;
+        padding: 0.1em 0.4em;
+        font-size: 0.88em;
+    }
+
+    pre {
+        border: 1px solid rgba(138, 109, 74, 0.22);
+        border-left: 3px solid var(--accent-color);
+        border-radius: 8px;
+        box-shadow: var(--shadow-l1);
+        code {
+            border: 0;
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+    }
+
+    table {
+        border: 1px solid var(--table-border-color);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(138, 109, 74, 0.08);
+        th {
+            background: rgba(107, 142, 90, 0.10);
+            color: var(--card-text-color-main);
+            font-family: var(--font-ui);
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.03em;
+        }
+        th, td { border: 1px solid var(--table-border-color); padding: 0.6em 0.9em; }
+        tr:nth-child(even) { background: var(--tr-even-background-color); }
+    }
+
+    img {
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(138, 109, 74, 0.18);
+        transition: transform 0.5s var(--ease-soft), box-shadow 0.5s var(--ease-soft);
+        &:hover {
+            transform: scale(1.01);
+            box-shadow: 0 10px 28px rgba(138, 109, 74, 0.22);
+        }
+    }
+
+    hr {
+        border: 0;
+        height: 24px;
+        background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 12'><path d='M2 6 Q 30 1 60 6 T 118 6' fill='none' stroke='%238a6d4b' stroke-width='1.2' stroke-linecap='round'/></svg>") center / contain no-repeat;
+        margin: 2.2em auto;
+        width: 140px;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 9. Article list — soft cards, pill tags
+// -----------------------------------------------------------------------------
+
+.article-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+}
+
+.article-list .article-title {
+    font-size: 1.4rem;
+    line-height: 1.25;
+    transition: color 0.25s var(--ease-soft);
+}
+.article-list .article-list-item:hover .article-title,
+.article-list > article:hover .article-title {
+    color: var(--accent-color-darker);
+}
+
+.article-list .article-image {
+    border-bottom: 1px solid var(--card-separator-color);
+}
+
+.article-tags .article-tag,
+.tag-cloud a,
+.tags a {
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    border: 1px solid rgba(107, 142, 90, 0.45) !important;
+    color: var(--accent-color-darker) !important;
+    background: rgba(107, 142, 90, 0.06);
+    border-radius: var(--tag-border-radius);
+    padding: 0.2em 0.7em !important;
+    transition: all 0.25s var(--ease-soft);
+    &:hover {
+        background: rgba(107, 142, 90, 0.16);
+        border-color: var(--accent-color) !important;
+        transform: translateY(-1px);
+    }
+}
+
+// category chip — theme injects a warm-ish hsl() inline style; harmonize to palette
+.article-category a,
+.article-category a[style] {
+    background: rgba(107, 142, 90, 0.10) !important;
+    color: var(--accent-color-darker) !important;
+    border: 1px solid rgba(107, 142, 90, 0.40) !important;
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    border-radius: var(--tag-border-radius);
+    padding: 0.2em 0.7em !important;
+    transition: all 0.25s var(--ease-soft);
+    &:hover {
+        background: rgba(201, 123, 90, 0.16) !important;
+        color: var(--accent-color-tertiary) !important;
+        border-color: var(--accent-color-tertiary) !important;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 10. Widgets — search, archives, toc
+// -----------------------------------------------------------------------------
+
+.widget {
+    padding: var(--small-card-padding, 25px);
+    .widget-icon {
+        color: var(--accent-color-secondary);
+    }
+}
+
+.search-form {
+    input[type="search"],
+    input[type="text"] {
+        background: var(--body-background);
+        border: 1px solid var(--card-separator-color);
+        color: var(--card-text-color-main);
+        font-family: var(--font-ui);
+        border-radius: 8px;
+        transition: all 0.25s var(--ease-soft);
+        &:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(107, 142, 90, 0.18);
+            outline: none;
+        }
+    }
+    button {
+        background: var(--accent-color);
+        color: var(--accent-color-text);
+        border: 1px solid var(--accent-color);
+        font-family: var(--font-ui);
+        font-size: 0.78rem;
+        letter-spacing: 0.05em;
+        border-radius: 8px;
+        transition: all 0.25s var(--ease-soft);
+        &:hover {
+            background: var(--accent-color-darker);
+            border-color: var(--accent-color-darker);
+            transform: translateY(-1px);
+        }
+    }
+}
+
+.archives-year,
+.widget-archive--list a,
+.categories .category {
+    border-left: 2px solid rgba(138, 109, 74, 0.25);
+    transition: border-color 0.25s, color 0.25s, padding-left 0.25s;
+    &:hover {
+        border-left-color: var(--accent-color);
+        color: var(--accent-color-darker);
+        padding-left: 0.4em;
+    }
+}
+
+.toc {
+    background: rgba(107, 142, 90, 0.04);
+    border-left: 2px solid var(--accent-color);
+    border-radius: 0 8px 8px 0;
+    nav#TableOfContents ul {
+        font-family: var(--font-ui);
+        font-size: 0.82rem;
+    }
+    .toc-active a {
+        color: var(--accent-color-darker);
+        font-weight: 600;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 11. Pagination — soft buttons
+// -----------------------------------------------------------------------------
+
+.pagination,
+.pagination-link,
+.page-link {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    .page-link,
+    .pagination-link,
+    a {
+        border: 1px solid var(--card-separator-color) !important;
+        color: var(--card-text-color-main) !important;
+        background: var(--card-background);
+        border-radius: 8px !important;
+        letter-spacing: 0.04em;
+        font-weight: 500;
+        transition: all 0.25s var(--ease-soft);
+        &:hover {
+            border-color: var(--accent-color) !important;
+            color: var(--accent-color-darker) !important;
+            background: rgba(107, 142, 90, 0.08);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(107, 142, 90, 0.12);
+        }
+    }
+    .current,
+    .page-link.current {
+        background: var(--accent-color);
+        color: var(--accent-color-text) !important;
+        border-color: var(--accent-color) !important;
+    }
+    .disabled {
+        opacity: 0.4;
+        border-color: var(--card-separator-color) !important;
+        color: var(--card-text-color-tertiary) !important;
+    }
+}
+
+.btn-primary,
+button.btn-primary,
+.btn {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    border: 1px solid var(--accent-color);
+    background: var(--accent-color);
+    color: var(--accent-color-text);
+    border-radius: 8px;
+    &:hover {
+        background: var(--accent-color-darker);
+        border-color: var(--accent-color-darker);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(107, 142, 90, 0.25);
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 12. Footer — quiet tea-toned line
+// -----------------------------------------------------------------------------
+
+.site-footer {
+    font-family: var(--font-ui);
+    font-size: 0.82rem;
+    color: var(--card-text-color-tertiary);
+    border-top: 1px dashed var(--card-separator-color);
+    a {
+        color: var(--accent-color-darker);
+        &:hover { color: var(--accent-color-tertiary); }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 13. 404 — big Playfair, soft ink shadow
+// -----------------------------------------------------------------------------
+
+.error-404,
+.error {
+    h1, .error-title {
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: clamp(3.5rem, 12vw, 7rem);
+        color: var(--card-text-color-main);
+        text-shadow: 0 4px 20px rgba(138, 109, 74, 0.25);
+        letter-spacing: 0.02em;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 14. Cookie banner — soft paper card
+// -----------------------------------------------------------------------------
+
+#cookie-banner,
+.cookies {
+    border: 1px solid var(--card-separator-color) !important;
+    box-shadow: var(--shadow-l2);
+    border-radius: 12px !important;
+    font-family: var(--font-ui);
+    background: var(--card-background) !important;
+}
+
+// -----------------------------------------------------------------------------
+// 15. Code highlight — soften chrome, keep token colors
+// -----------------------------------------------------------------------------
+
+.chroma {
+    background: #fbf7ec !important;
+    .ln {
+        color: rgba(138, 109, 74, 0.55) !important;
+        border-right: 1px dashed var(--card-separator-color);
+        padding-right: 0.8em;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 16. Responsive — disable heavy ambient motion on small screens
+// -----------------------------------------------------------------------------
+
+@media (max-width: 768px) {
+    .ambient-layer { display: none; }
+    body {
+        background-size: auto, auto, 120px 120px;
+    }
+}
+
+// Respect reduced motion
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+    .ambient-layer { display: none; }
+}
+
+// =============================================================================
+// 17. Seasonal system — 4 palettes + 4 particle sets, switched by data-season
+//     on <html>. Autumn is the :root default (see tokens above). Picker button
+//     bottom-right cycles season; localStorage sticks the choice.
+// =============================================================================
+
+// --- Spring — cherry blossom (paper blushed pink, pink/green accents) -------
+:root[data-season="spring"] {
+    --body-background: #f7f0ec;
+    --body-text-color: #2a2222;
+    --accent-color: #c08aa8;
+    --accent-color-darker: #a86a8c;
+    --accent-color-text: #fdf6f2;
+    --accent-color-secondary: #a8c08a;
+    --accent-color-tertiary: #e8a8b8;
+    --accent-color-quaternary: #8a6a8a;
+    --card-background: #fdf6f2;
+    --card-background-selected: #f5e8e2;
+    --card-text-color-main: #1f1a1f;
+    --card-text-color-secondary: #6a5a6a;
+    --card-text-color-tertiary: #8a7a8a;
+    --card-separator-color: rgba(192, 138, 168, 0.22);
+    --blockquote-background-color: rgba(192, 138, 168, 0.08);
+    --code-background-color: rgba(168, 192, 138, 0.10);
+    --code-text-color: #6a4a5a;
+    --link-background-color: 192, 138, 168;
+    --table-border-color: rgba(192, 138, 168, 0.25);
+    --tr-even-background-color: rgba(168, 192, 138, 0.06);
+}
+
+// --- Summer — bamboo (paper tinted green, bamboo-green/gold accents) --------
+:root[data-season="summer"] {
+    --body-background: #f0f4ec;
+    --body-text-color: #1f2a1a;
+    --accent-color: #5a7a4a;
+    --accent-color-darker: #4a6a3a;
+    --accent-color-text: #f7faf2;
+    --accent-color-secondary: #7a9a6a;
+    --accent-color-tertiary: #b8a040;
+    --accent-color-quaternary: #3a5a3a;
+    --card-background: #f7faf2;
+    --card-background-selected: #e8f0e0;
+    --card-text-color-main: #1a2a1a;
+    --card-text-color-secondary: #4a5a3a;
+    --card-text-color-tertiary: #6a7a5a;
+    --card-separator-color: rgba(90, 122, 74, 0.22);
+    --blockquote-background-color: rgba(90, 122, 74, 0.08);
+    --code-background-color: rgba(122, 154, 106, 0.10);
+    --code-text-color: #3a5a2a;
+    --link-background-color: 90, 122, 74;
+    --table-border-color: rgba(90, 122, 74, 0.25);
+    --tr-even-background-color: rgba(122, 154, 106, 0.06);
+}
+
+// --- Winter — snow (cool blue-grey paper, frost-blue accents) ---------------
+:root[data-season="winter"] {
+    --body-background: #eef0f0;
+    --body-text-color: #2a2a30;
+    --accent-color: #5a7a8a;
+    --accent-color-darker: #4a6a7a;
+    --accent-color-text: #f6f7f8;
+    --accent-color-secondary: #6a8aa0;
+    --accent-color-tertiary: #a8c0d0;
+    --accent-color-quaternary: #3a4a5a;
+    --card-background: #f6f7f8;
+    --card-background-selected: #e2e6ea;
+    --card-text-color-main: #1a1a20;
+    --card-text-color-secondary: #4a4a5a;
+    --card-text-color-tertiary: #6a6a7a;
+    --card-separator-color: rgba(90, 122, 138, 0.22);
+    --blockquote-background-color: rgba(90, 122, 138, 0.08);
+    --code-background-color: rgba(106, 138, 160, 0.10);
+    --code-text-color: #2a3a4a;
+    --link-background-color: 90, 122, 138;
+    --table-border-color: rgba(90, 122, 138, 0.25);
+    --tr-even-background-color: rgba(106, 138, 160, 0.06);
+}
+
+// Per-season paper vignette overlay (kept subtle so text stays readable)
+:root[data-season="spring"] body {
+    background-image:
+        radial-gradient(ellipse at 20% 0%, rgba(232, 168, 184, 0.18), transparent 55%),
+        radial-gradient(ellipse at 100% 100%, rgba(168, 192, 138, 0.10), transparent 55%),
+        var(--paper-grain);
+}
+:root[data-season="summer"] body {
+    background-image:
+        radial-gradient(ellipse at 20% 0%, rgba(122, 154, 106, 0.14), transparent 55%),
+        radial-gradient(ellipse at 100% 100%, rgba(184, 160, 64, 0.08), transparent 55%),
+        var(--paper-grain);
+}
+:root[data-season="winter"] body {
+    // Hokkaido sky-to-snow field — pale blue-grey sky fading to white snow
+    background-image:
+        linear-gradient(180deg,
+            #d8dee5 0%,
+            #e2e7eb 28%,
+            #ebedef 58%,
+            #f3f5f7 82%,
+            #ffffff 100%),
+        var(--paper-grain);
+}
+
+// --- Particle sub-layers: only the active season renders --------------------
+.particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    display: none;
+}
+:root[data-season="spring"] .particles-spring,
+:root[data-season="summer"] .particles-summer,
+:root[data-season="autumn"] .particles-autumn,
+:root[data-season="winter"] .particles-winter {
+    display: block;
+}
+
+// --- Spring — cherry blossom petals ------------------------------------------
+.petal {
+    position: absolute;
+    top: -20px;
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle at 30% 30%, #fce4ec, #f5a8c0 75%);
+    border-radius: 100% 0 100% 0;
+    opacity: 0.75;
+    filter: blur(0.2px);
+    animation: drift var(--dur, 28s) var(--ease-soft) infinite;
+    animation-delay: var(--delay, 0s);
+    left: var(--x, 10%);
+}
+@keyframes drift {
+    0%   { transform: translate3d(0, -10vh, 0) rotate(0deg);   opacity: 0; }
+    8%   { opacity: 0.78; }
+    92%  { opacity: 0.72; }
+    100% { transform: translate3d(var(--drift, 60px), 110vh, 0) rotate(540deg); opacity: 0; }
+}
+
+// --- Summer — bamboo leaves + swaying stalks on the edges -------------------
+.bamboo-leaf {
+    position: absolute;
+    top: -20px;
+    width: 9px;
+    height: 26px;
+    background: linear-gradient(180deg, #7a9a6a, #3a5a2a);
+    border-radius: 100% 0 100% 0;
+    opacity: 0.5;
+    animation: drift var(--dur, 24s) var(--ease-soft) infinite;
+    animation-delay: var(--delay, 0s);
+    left: var(--x, 10%);
+}
+.bamboo-stalk {
+    position: absolute;
+    bottom: 0;
+    width: 14px;
+    height: 100vh;
+    background:
+        repeating-linear-gradient(180deg,
+            rgba(90, 122, 74, 0.18) 0 90px,
+            rgba(60, 80, 40, 0.32) 90px 93px),
+        linear-gradient(180deg, transparent 5%, rgba(90, 122, 74, 0.16) 30%, rgba(90, 122, 74, 0.22));
+    transform-origin: bottom center;
+    opacity: 0.7;
+    pointer-events: none;
+}
+.bamboo-stalk.bamboo-left  { left: 4px;  animation: sway-left 9s ease-in-out infinite alternate; }
+.bamboo-stalk.bamboo-right { right: 4px; animation: sway-right 9s ease-in-out infinite alternate; animation-delay: -3.5s; }
+@keyframes sway-left  { 0% { transform: rotate(-1.8deg); } 100% { transform: rotate(-0.4deg); } }
+@keyframes sway-right { 0% { transform: rotate(0.4deg); }  100% { transform: rotate(1.8deg); } }
+
+// --- Winter — soft snow (Hokkaido ethereal) + drifting mist ----------------
+.snowflake {
+    position: absolute;
+    top: -20px;
+    width: var(--size, 6px);
+    height: var(--size, 6px);
+    background: radial-gradient(circle,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(255, 255, 255, 0.55) 45%,
+        rgba(255, 255, 255, 0) 75%);
+    border-radius: 50%;
+    opacity: var(--opacity, 0.7);
+    filter: blur(var(--blur, 0.8px));
+    animation: drift var(--dur, 22s) linear infinite;
+    animation-delay: var(--delay, 0s);
+    left: var(--x, 10%);
+}
+// Soft mist/fog drifting slowly across — adds the airy Hokkaido depth
+.mist {
+    position: absolute;
+    width: 65vw;
+    height: 35vh;
+    background: radial-gradient(ellipse,
+        rgba(255, 255, 255, 0.55) 0%,
+        rgba(255, 255, 255, 0.20) 45%,
+        rgba(255, 255, 255, 0) 75%);
+    filter: blur(24px);
+    opacity: 0.7;
+    pointer-events: none;
+    animation: mist-drift var(--dur, 80s) linear infinite;
+    animation-delay: var(--delay, 0s);
+    left: var(--x, -10vw);
+    top: var(--y, 40%);
+}
+.mist.m1 { --x: -20vw; --y: 25%; --dur: 90s; --delay: 0s; }
+.mist.m2 { --x: -30vw; --y: 55%; --dur: 110s; --delay: -40s; opacity: 0.5; }
+@keyframes mist-drift {
+    0%   { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(160vw, 0, 0); }
+}
+
+
+// --- Season picker — floating bottom-right, 4 brush-character buttons -------
+.season-picker {
+    position: fixed;
+    bottom: 22px;
+    right: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 50;
+    background: var(--card-background);
+    border: 1px solid var(--card-separator-color);
+    border-radius: 999px;
+    padding: 6px;
+    box-shadow: var(--shadow-l1);
+}
+
+.season-btn {
+    width: 34px;
+    height: 34px;
+    border: 0;
+    background: transparent;
+    font-family: var(--font-brush);
+    font-size: 1.05rem;
+    line-height: 1;
+    color: var(--card-text-color-secondary);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: color 0.25s var(--ease-soft),
+                background 0.25s var(--ease-soft),
+                box-shadow 0.25s var(--ease-soft);
+}
+.season-btn:hover {
+    color: var(--accent-color);
+    background: rgba(0, 0, 0, 0.04);
+}
+.season-btn.active {
+    color: var(--accent-color);
+    background: rgba(0, 0, 0, 0.06);
+    box-shadow: inset 0 0 0 1.5px var(--accent-color);
+}
+
+@media (max-width: 768px) {
+    .season-picker { bottom: 12px; right: 12px; padding: 4px; gap: 2px; }
+    .season-btn { width: 30px; height: 30px; font-size: 0.95rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .bamboo-stalk { animation: none !important; }
+}
+

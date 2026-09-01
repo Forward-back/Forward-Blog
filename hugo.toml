@@ -40,6 +40,10 @@ theme                  = "hugo-theme-stack"
     mainSections   = ["post"]
     rssFullContent = true
 
+    [params.colorScheme]
+        toggle  = false
+        default = "light"
+
     [params.footer]
         since = 2026
 

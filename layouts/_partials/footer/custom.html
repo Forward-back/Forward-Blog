@@ -1,0 +1,163 @@
+{{/* Seasonal ambient system: 4 particle sub-layers (CSS shows only the active
+   one via [data-season] on <html>), a floating season picker bottom-right,
+   reading-progress bar, scroll-reveal JS, and per-particle randomization
+   (position / duration / drift / snowflake depth tier). All inline, no theme
+   TS edits. */}}
+
+<div class="ambient-layer" aria-hidden="true">
+    {{/* Autumn — 8 amber falling leaves */}}
+    <div class="particles particles-autumn">
+        <span class="leaf"></span><span class="leaf"></span><span class="leaf"></span><span class="leaf"></span>
+        <span class="leaf"></span><span class="leaf"></span><span class="leaf"></span><span class="leaf"></span>
+    </div>
+    {{/* Spring — 20 cherry petals */}}
+    <div class="particles particles-spring">
+        <span class="petal"></span><span class="petal"></span><span class="petal"></span><span class="petal"></span><span class="petal"></span>
+        <span class="petal"></span><span class="petal"></span><span class="petal"></span><span class="petal"></span><span class="petal"></span>
+        <span class="petal"></span><span class="petal"></span><span class="petal"></span><span class="petal"></span><span class="petal"></span>
+        <span class="petal"></span><span class="petal"></span><span class="petal"></span><span class="petal"></span><span class="petal"></span>
+    </div>
+    {{/* Summer — 2 swaying bamboo stalks + 12 bamboo leaves */}}
+    <div class="particles particles-summer">
+        <div class="bamboo-stalk bamboo-left"></div>
+        <div class="bamboo-stalk bamboo-right"></div>
+        <span class="bamboo-leaf"></span><span class="bamboo-leaf"></span><span class="bamboo-leaf"></span>
+        <span class="bamboo-leaf"></span><span class="bamboo-leaf"></span><span class="bamboo-leaf"></span>
+        <span class="bamboo-leaf"></span><span class="bamboo-leaf"></span><span class="bamboo-leaf"></span>
+        <span class="bamboo-leaf"></span><span class="bamboo-leaf"></span><span class="bamboo-leaf"></span>
+    </div>
+    {{/* Winter — drifting mist + 30 soft snowflakes (3 depth tiers via JS) */}}
+    <div class="particles particles-winter">
+        <div class="mist m1"></div>
+        <div class="mist m2"></div>
+        <span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span>
+        <span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span>
+        <span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span>
+        <span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span>
+        <span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span>
+        <span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span><span class="snowflake"></span>
+    </div>
+</div>
+
+<div class="reading-progress" aria-hidden="true"></div>
+
+<nav class="season-picker" role="group" aria-label="季节切换">
+    <button type="button" class="season-btn" data-season-btn="spring" aria-label="春 · 樱花">
+        <span aria-hidden="true">花</span>
+    </button>
+    <button type="button" class="season-btn" data-season-btn="summer" aria-label="夏 · 竹林">
+        <span aria-hidden="true">竹</span>
+    </button>
+    <button type="button" class="season-btn" data-season-btn="autumn" aria-label="秋 · 落叶">
+        <span aria-hidden="true">叶</span>
+    </button>
+    <button type="button" class="season-btn" data-season-btn="winter" aria-label="冬 · 飘雪">
+        <span aria-hidden="true">雪</span>
+    </button>
+</nav>
+
+<script>
+(function () {
+    var STORAGE_KEY = 'forward-blog-season';
+    var SEASONS = ['spring', 'summer', 'autumn', 'winter'];
+
+    // --- Particle randomization (sets CSS custom props per element) ---------
+    function rand(min, max) { return Math.random() * (max - min) + min; }
+    function scatter(selector, ranges) {
+        document.querySelectorAll(selector).forEach(function (el) {
+            for (var k in ranges) {
+                var r = ranges[k];
+                el.style.setProperty(k, (rand(r[0], r[1])).toFixed(2) + (r[2] || ''));
+            }
+        });
+    }
+    // Autumn leaves — also keep CSS nth-child color; JS sets position/timing
+    scatter('.particles-autumn .leaf', {
+        '--x':       [3, 95, '%'],
+        '--dur':     [18, 32, 's'],
+        '--delay':   [-18, 0, 's'],
+        '--drift':   [-80, 80, 'px']
+    });
+    // Spring petals
+    scatter('.particles-spring .petal', {
+        '--x':       [3, 95, '%'],
+        '--dur':     [22, 38, 's'],
+        '--delay':   [-30, 0, 's'],
+        '--drift':   [-60, 60, 'px']
+    });
+    // Summer bamboo leaves — sparse, slow
+    scatter('.particles-summer .bamboo-leaf', {
+        '--x':       [3, 95, '%'],
+        '--dur':     [20, 30, 's'],
+        '--delay':   [-25, 0, 's'],
+        '--drift':   [-50, 50, 'px']
+    });
+    // Winter snowflakes — 3 depth tiers cycled by index: far / mid / near
+    var snowflakes = document.querySelectorAll('.particles-winter .snowflake');
+    snowflakes.forEach(function (el, i) {
+        var tier = i % 3;
+        var size, blur, op, dur;
+        if (tier === 0) {        // far — small, blurry, faint, slow
+            size = rand(3, 5);   blur = rand(1.2, 2.0);  op = rand(0.30, 0.45); dur = rand(28, 40);
+        } else if (tier === 1) { // mid
+            size = rand(5, 8);   blur = rand(0.6, 1.2);  op = rand(0.55, 0.72); dur = rand(20, 28);
+        } else {                 // near — larger, sharper, more opaque, faster
+            size = rand(8, 12);  blur = rand(0.2, 0.5);  op = rand(0.78, 0.95); dur = rand(14, 22);
+        }
+        el.style.setProperty('--x', rand(3, 95).toFixed(2) + '%');
+        el.style.setProperty('--size', size.toFixed(2) + 'px');
+        el.style.setProperty('--blur', blur.toFixed(2) + 'px');
+        el.style.setProperty('--opacity', op.toFixed(2));
+        el.style.setProperty('--dur', dur.toFixed(2) + 's');
+        el.style.setProperty('--delay', rand(-30, 0).toFixed(2) + 's');
+        el.style.setProperty('--drift', rand(-40, 40).toFixed(2) + 'px');
+    });
+
+    // --- Season: default by current month, override via localStorage -------
+    function monthToSeason() {
+        var m = new Date().getMonth() + 1;
+        if (m >= 3 && m <= 5)  return 'spring';
+        if (m >= 6 && m <= 8)  return 'summer';
+        if (m >= 9 && m <= 11) return 'autumn';
+        return 'winter';
+    }
+    function applySeason(season) {
+        if (SEASONS.indexOf(season) === -1) season = monthToSeason();
+        document.documentElement.setAttribute('data-season', season);
+        document.querySelectorAll('.season-btn').forEach(function (btn) {
+            var s = btn.getAttribute('data-season-btn');
+            btn.classList.toggle('active', s === season);
+            btn.setAttribute('aria-pressed', s === season ? 'true' : 'false');
+        });
+    }
+    var saved = null;
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+    applySeason(saved || monthToSeason());
+
+    document.querySelectorAll('.season-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var s = btn.getAttribute('data-season-btn');
+            try { localStorage.setItem(STORAGE_KEY, s); } catch (e) {}
+            applySeason(s);
+        });
+    });
+
+    // --- Reading progress bar ------------------------------------------------
+    var bar = document.querySelector('.reading-progress');
+    var ticking = false;
+    function updateProgress() {
+        if (!bar) return;
+        var h = document.documentElement;
+        var max = h.scrollHeight - h.clientHeight;
+        var p = max > 0 ? h.scrollTop / max : 0;
+        bar.style.transform = 'scaleX(' + p + ')';
+        ticking = false;
+    }
+    function onScroll() {
+        if (!ticking) { window.requestAnimationFrame(updateProgress); ticking = true; }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', updateProgress, { passive: true });
+    updateProgress();
+})();
+</script>

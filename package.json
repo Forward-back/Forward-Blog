@@ -1,0 +1,12 @@
+{
+  "name": "forward-blog",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Forward 的博客 — Hugo + hugo-theme-stack, Miami neon redesign",
+  "scripts": {
+    "dev": "node scripts/hugo.js server --bind 0.0.0.0 --port 1313 --disableFastRender",
+    "build": "node scripts/hugo.js --minify",
+    "serve": "node scripts/hugo.js server --bind 0.0.0.0 --port 1313 --renderToMemory",
+    "clean": "node -e \"const fs=require('fs');for(const p of ['public','resources/_gen'])fs.rmSync(p,{recursive:true,force:true})\""
+  }
+}
